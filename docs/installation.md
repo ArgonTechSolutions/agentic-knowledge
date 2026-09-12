@@ -84,6 +84,8 @@ Git synchronization is optional and one-shot. Install Git and `age` on every dev
 
 Use one age identity on all devices, or collect every intended device's public recipient and repeat `--recipient` for each. On Linux, `age-keygen -y ~/.config/sops/age/keys.txt` prints the public recipient. On Windows, use `age-keygen -y "$HOME\.config\sops\age\keys.txt"`.
 
+Existing Git authentication is used by default. For a dedicated repository deploy key, pass `--ssh-key /private/path/to/key` and use the corresponding SSH remote URL. The key path stays in the device-local sync configuration and is never copied into the repository.
+
 ```sh
 python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync-enroll \
   --repository git@github.com:OWNER/private-knowledge-sync.git \

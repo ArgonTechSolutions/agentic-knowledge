@@ -15,9 +15,10 @@ FORMAT = "argon-knowledge-git-sync/v1"
 CONFIG = "sync.json"
 
 
-def _command(args, cwd=None, data=None, ok=True):
+def _command(args, cwd=None, data=None, ok=True, env_updates=None):
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
+    env.update(env_updates or {})
     try:
         result = subprocess.run(
             [str(x) for x in args],
@@ -65,6 +66,18 @@ def _validate_device(value):
 
 def _config_path(home):
     return Path(home).expanduser().absolute() / CONFIG
+
+
+def _git_environment(ssh_key):
+    if not ssh_key:
+        return {}
+    value = Path(ssh_key).expanduser().absolute()
+    if not value.is_file() or value.is_symlink():
+        raise KnowledgeError("Git SSH key must be an existing regular file, not a symlink.")
+    key = value.as_posix()
+    if any(x in key for x in ['"', "\n", "\r"]):
+        raise KnowledgeError("Git SSH key path contains unsupported characters.")
+    return {"GIT_SSH_COMMAND": f'ssh -i "{key}" -o IdentitiesOnly=yes'}
 
 
 def _recipient_group(recipients):
@@ -120,8 +133,13 @@ def load(home):
         "git",
         "age",
     }
+    if isinstance(value, dict) and set(value) == required:
+        value["ssh_key"] = ""
+    elif isinstance(value, dict):
+        required.add("ssh_key")
     if not isinstance(value, dict) or set(value) != required or value["format"] != FORMAT:
         raise KnowledgeError("Invalid Git sync configuration.")
+    _git_environment(value["ssh_key"])
     return value
 
 
@@ -129,7 +147,7 @@ def _has_ref(git, checkout, ref):
     return _command([git, "rev-parse", "--verify", "--quiet", ref], checkout, ok=False).returncode == 0
 
 
-def enroll(home, repository, branch, device, identity, recipients, checkout=None):
+def enroll(home, repository, branch, device, identity, recipients, checkout=None, ssh_key=None):
     home = Path(home).expanduser().absolute()
     path = _config_path(home)
     if path.exists():
@@ -143,6 +161,7 @@ def enroll(home, repository, branch, device, identity, recipients, checkout=None
     git = _tool("git")
     age = _tool("age")
     recipients = _validate_crypto(age, identity, recipients)
+    git_environment = _git_environment(ssh_key)
 
     checkout = (
         Path(checkout).expanduser().absolute() if checkout else home / "sync" / "repository"
@@ -151,7 +170,7 @@ def enroll(home, repository, branch, device, identity, recipients, checkout=None
         raise KnowledgeError("Sync checkout already exists; choose a new dedicated path.")
     checkout.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     try:
-        _command([git, "clone", repository, checkout])
+        _command([git, "clone", repository, checkout], env_updates=git_environment)
         remote_ref = f"refs/remotes/origin/{branch}"
         if _has_ref(git, checkout, remote_ref):
             _command([git, "checkout", "-B", branch, f"origin/{branch}"], checkout)
@@ -175,6 +194,7 @@ def enroll(home, repository, branch, device, identity, recipients, checkout=None
         "checkout": str(checkout),
         "git": git,
         "age": age,
+        "ssh_key": str(Path(ssh_key).expanduser().absolute()) if ssh_key else "",
     }
     _write_config(path, config, exclusive=True)
     return {
@@ -237,7 +257,7 @@ def _update_checkout(config):
     for key in ["user.name", "user.email"]:
         if not _command([git, "config", "--get", key], checkout, ok=False).stdout.strip():
             raise KnowledgeError(f"Configure Git {key} before syncing.")
-    _command([git, "fetch", "origin"], checkout)
+    _command([git, "fetch", "origin"], checkout, env_updates=_git_environment(config["ssh_key"]))
     remote_ref = f"refs/remotes/origin/{branch}"
     if _has_ref(git, checkout, remote_ref):
         if _has_ref(git, checkout, "HEAD"):
@@ -317,7 +337,10 @@ def synchronize(home, store, attempts=3):
                 raise
             published = True
         last_push = _command(
-            [git, "push", "origin", f"HEAD:refs/heads/{config['branch']}"], checkout, ok=False
+            [git, "push", "origin", f"HEAD:refs/heads/{config['branch']}"],
+            checkout,
+            ok=False,
+            env_updates=_git_environment(config["ssh_key"]),
         )
         if last_push.returncode == 0:
             return {

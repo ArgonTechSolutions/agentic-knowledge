@@ -8,7 +8,7 @@ Each absolute path in a personal record must still name its verified device. Syn
 
 ## Enroll a repository
 
-Use a private repository and existing Git authentication. Never embed a token in the repository URL. Enrollment requires Git, `age`, a local age identity, all intended devices' public age recipients, a stable device label, and an empty or existing remote branch. It creates a dedicated checkout under the private data home by default. Follow the installation guide's exact command.
+Use a private repository and existing Git authentication. Never embed a token in the repository URL. A repository-scoped SSH key may be enrolled with `--ssh-key`; only its local path enters sync configuration. Enrollment also requires Git, `age`, a local age identity, all intended devices' public age recipients, a stable device label, and an empty or existing remote branch. It creates a dedicated checkout under the private data home by default. Follow the installation guide's exact command.
 
 To add a device with a distinct age identity, first run `sync-set-recipients` on an already enrolled device with the complete old-plus-new recipient set, then run `sync` there. This publishes a full-history snapshot in a new recipient group. Update every other existing device to the same complete set before further writes. Enroll and sync the new device using that set. Old encrypted groups remain in Git history, so removing a recipient affects future groups and is not retroactive revocation.
 

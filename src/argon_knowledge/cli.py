@@ -79,6 +79,7 @@ def parser():
     q.add_argument("--identity", required=True, type=Path)
     q.add_argument("--recipient", required=True, action="append", dest="recipients")
     q.add_argument("--checkout", type=Path)
+    q.add_argument("--ssh-key", type=Path)
     sub.add_parser("sync-status")
     q = sub.add_parser("sync-set-recipients")
     q.add_argument("--recipient", required=True, action="append", dest="recipients")
@@ -147,6 +148,7 @@ def run(args, store):
             args.identity,
             args.recipients,
             args.checkout,
+            args.ssh_key,
         )
     if command == "sync-status":
         from .sync import status
