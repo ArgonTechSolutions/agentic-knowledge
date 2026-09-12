@@ -22,3 +22,9 @@ Hybrid search combines BM25 lexical and cosine semantic rankings with reciprocal
 Markdown/HTML snapshots are generated from a consistent read. Content escapes HTML, note paths use stable UUIDs, and original source files are never rewritten. Different existing export contents cause a conflict. Snapshots retain history on disk and need owner-directed retention management for a large corpus.
 
 No MCP process is installed: CLI invocation matches the no-resident-process requirement. A future stdio MCP adapter can wrap this API, but may remain alive for a client session. A future tools.argon.com.pe page should distribute code/instructions; a hosted private-data API would require a separately designed authentication and ownership boundary.
+
+## Encrypted Git synchronization
+
+Synchronization never copies the SQLite database. Each one-shot command uses a dedicated Git checkout, decrypts immutable full-history bundles for the configured recipient group through the local `age` identity, and merges them inside one outer database transaction. It then encrypts the current complete bundle to every configured public recipient and publishes it under a device-labelled, content-addressed path. Plaintext moves through process pipes and is not written into the Git checkout.
+
+The recipient-set digest names an encryption group. Adding a device creates a new group after an existing device publishes a full-history snapshot for the expanded recipient set. Previous ciphertext remains immutable and readable by its original recipients, so recipient removal is not retroactive revocation. Git push retries are bounded. Record-head divergence is a knowledge conflict and stops the sync; unique snapshot paths keep ordinary concurrent Git additions mergeable.

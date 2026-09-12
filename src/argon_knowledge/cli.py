@@ -72,6 +72,17 @@ def parser():
     q.add_argument("--apply", action="store_true")
     q = sub.add_parser("backup")
     q.add_argument("path", type=Path)
+    q = sub.add_parser("sync-enroll")
+    q.add_argument("--repository", required=True)
+    q.add_argument("--branch", default="main")
+    q.add_argument("--device", required=True)
+    q.add_argument("--identity", required=True, type=Path)
+    q.add_argument("--recipient", required=True, action="append", dest="recipients")
+    q.add_argument("--checkout", type=Path)
+    sub.add_parser("sync-status")
+    q = sub.add_parser("sync-set-recipients")
+    q.add_argument("--recipient", required=True, action="append", dest="recipients")
+    sub.add_parser("sync")
     return p
 
 
@@ -125,6 +136,30 @@ def run(args, store):
         return store.merge(read_json(args.path), args.apply)
     if command == "backup":
         return store.backup(args.path)
+    if command == "sync-enroll":
+        from .sync import enroll
+
+        return enroll(
+            args.home,
+            args.repository,
+            args.branch,
+            args.device,
+            args.identity,
+            args.recipients,
+            args.checkout,
+        )
+    if command == "sync-status":
+        from .sync import status
+
+        return status(args.home)
+    if command == "sync-set-recipients":
+        from .sync import set_recipients
+
+        return set_recipients(args.home, args.recipients)
+    if command == "sync":
+        from .sync import synchronize
+
+        return synchronize(args.home, store)
     from . import semantic
 
     if command == "model-prepare":
@@ -143,7 +178,7 @@ def main():
         args.home = args.home.expanduser().absolute()
         store = Store(args.home / "knowledge.sqlite3", create=args.command == "init")
         result = run(args, store)
-        if args.command in ["put", "set-status"] or (
+        if args.command in ["put", "set-status", "sync"] or (
             args.command in ["import-markdown", "bundle-import"] and args.apply
         ):
             try:

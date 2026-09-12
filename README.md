@@ -1,6 +1,6 @@
 # Argon Agentic Knowledge
 
-Private knowledge records, hybrid retrieval, and human-readable Markdown/HTML exports. Every command exits. No database server, background indexer, container, model service, or network embedding API.
+Private knowledge records, hybrid retrieval, encrypted Git synchronization, and human-readable Markdown/HTML exports. Every command exits. No database server, background indexer, container, model service, or network embedding API.
 
 The reusable code belongs to the Argon workflow; each person keeps a separate private data directory. Scope labels filter one owner's records; they do not implement multi-user authorization. Hosting a download or documentation at tools.argon.com.pe does not host the owner's knowledge.
 
@@ -42,7 +42,7 @@ The owner decides which automatic saving policy applies. When opted in, the incl
 
 `import-markdown` previews by default; `--apply` copies authored notes transactionally. `--update` deliberately replaces changed imported records and preserves prior revisions; review first. It is not a live bidirectional Markdown sync. Imported links between notes are rewritten in generated Markdown; unusual Markdown link syntax and local attachments may require manual source review. Do not import session logs or secrets wholesale.
 
-## Backup and cross-machine transfer
+## Backup and cross-machine synchronization
 
 ```sh
 argon-knowledge --home /private/data backup /private/backups/new.sqlite3
@@ -51,7 +51,21 @@ argon-knowledge --home /other/private/data bundle-import /private/transfer/new.j
 # Review, repeat with --apply, then index on the destination.
 ```
 
-Backups use SQLite's backup API. Transfer bundles include complete records and revision history, not derived indexes or model files. They are private plaintext: use an authenticated encrypted transport and private destinations. Bundles reject tampering and divergent edits atomically; they do not authenticate an untrusted sender. Keep both divergent copies, retrieve histories, and reconcile intentionally. There is no automatic cross-machine synchronization in v1. Never sync an open SQLite file with a file-sync tool.
+Backups use SQLite's backup API. Transfer bundles include complete records and revision history, not derived indexes or model files. They are private plaintext: use an authenticated encrypted transport and private destinations. Bundles reject tampering and divergent edits atomically; they do not authenticate an untrusted sender. Keep both divergent copies, retrieve histories, and reconcile intentionally. There is no background synchronization. Never sync an open SQLite file with a file-sync tool.
+
+Version 0.2 adds opt-in, one-shot Git synchronization. It requires Git and `age`; the Git repository contains immutable encrypted bundles only. Enroll any private Git remote with a stable device label, a local age identity, and the complete recipient set, then run `sync` before retrieval and after writes:
+
+```sh
+argon-knowledge --home /private/data sync-enroll \
+  --repository git@github.com:OWNER/private-knowledge-sync.git \
+  --device laptop-example \
+  --identity /private/age/keys.txt \
+  --recipient age1example
+argon-knowledge --home /private/data sync-status
+argon-knowledge --home /private/data sync
+```
+
+The command pulls, transactionally merges compatible revision histories, commits a full encrypted snapshot for the device, pushes, and exits. Bounded retries handle unrelated concurrent Git pushes; divergent edits to the same record stop without partially importing a snapshot batch. See [installation](docs/installation.md) for multi-recipient onboarding and recovery.
 
 Deleted/superseded records are excluded from retrieval but retained in history, old exports and backups. This is not secure erasure. Retrieved excerpts enter your chosen agent’s context and follow that provider’s data handling; local embeddings do not make the agent itself local. Local permissions inherit the user's OS account protection; this tool does not encrypt data at rest or implement shared-host multi-tenancy. The credential pattern check is incomplete defense in depth, not a secret scanner.
 

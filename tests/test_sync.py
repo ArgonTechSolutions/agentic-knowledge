@@ -1,0 +1,140 @@
+import json
+import shutil
+import subprocess
+
+import pytest
+
+from argon_knowledge.store import Conflict, Store, record_id
+from argon_knowledge.sync import enroll, set_recipients, status, synchronize
+
+
+def payload(body):
+    return {
+        "scope": "personal",
+        "kind": "fact",
+        "title": "Synchronized knowledge",
+        "body": body,
+        "source": "test:git-sync",
+        "source_revision": "",
+        "tags": ["sync-test"],
+        "verification": "verified",
+        "status": "active",
+    }
+
+
+def run(*args, cwd=None):
+    return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True)
+
+
+def configure_git(home):
+    config = json.loads((home / "sync.json").read_text())
+    checkout = config["checkout"]
+    run("git", "config", "user.name", "Agentic Knowledge Test", cwd=checkout)
+    run("git", "config", "user.email", "agentic-knowledge@example.invalid", cwd=checkout)
+
+
+@pytest.mark.skipif(
+    not all(shutil.which(x) for x in ["age", "age-keygen", "git"]),
+    reason="age and Git are required",
+)
+def test_encrypted_git_sync_and_divergence(tmp_path):
+    identity = tmp_path / "identity.txt"
+    run("age-keygen", "-o", str(identity))
+    recipient = run("age-keygen", "-y", str(identity)).stdout.strip()
+    remote = tmp_path / "knowledge.git"
+    run("git", "init", "--bare", "--initial-branch=main", str(remote))
+
+    home_a = tmp_path / "device-a"
+    home_b = tmp_path / "device-b"
+    store_a = Store(home_a / "knowledge.sqlite3", create=True)
+    store_b = Store(home_b / "knowledge.sqlite3", create=True)
+    try:
+        enroll(home_a, str(remote), "main", "device-a", identity, [recipient])
+        configure_git(home_a)
+        first_id = record_id("personal", "first")
+        first = store_a.put(first_id, payload("Private synchronized value"))
+        first_sync = synchronize(home_a, store_a)
+        assert first_sync["published"]
+        assert status(home_a)["encrypted_snapshots"] == 1
+        encrypted = next((home_a / "sync/repository/snapshots").rglob("*.age")).read_bytes()
+        assert b"Private synchronized value" not in encrypted
+
+        enroll(home_b, str(remote), "main", "device-b", identity, [recipient])
+        configure_git(home_b)
+        assert synchronize(home_b, store_b)["imported_records"] == 1
+        assert store_b.get(first_id)["revision"] == first["revision"]
+
+        second_id = record_id("personal", "second")
+        store_b.put(second_id, payload("Second device value"))
+        synchronize(home_b, store_b)
+        assert synchronize(home_a, store_a)["imported_records"] == 1
+        assert store_a.get(second_id)["body"] == "Second device value"
+
+        base = store_a.get(first_id)["revision"]
+        store_a.put(first_id, payload("Device A fork"), base)
+        synchronize(home_a, store_a)
+        store_b.put(first_id, payload("Device B fork"), base)
+        with pytest.raises(Conflict, match="Divergent record heads"):
+            synchronize(home_b, store_b)
+        assert store_b.get(first_id)["body"] == "Device B fork"
+    finally:
+        store_a.close()
+        store_b.close()
+
+
+def test_enrollment_rejects_embedded_credentials(tmp_path):
+    store = Store(tmp_path / "home/knowledge.sqlite3", create=True)
+    store.close()
+    with pytest.raises(Exception, match="credentials"):
+        enroll(
+            tmp_path / "home",
+            "https://token@example.com/private.git",
+            "main",
+            "device-a",
+            tmp_path / "missing-key",
+            ["age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"],
+        )
+
+
+@pytest.mark.skipif(
+    not all(shutil.which(x) for x in ["age", "age-keygen", "git"]),
+    reason="age and Git are required",
+)
+def test_new_recipient_group_can_onboard_device(tmp_path):
+    old_identity = tmp_path / "old.txt"
+    new_identity = tmp_path / "new.txt"
+    run("age-keygen", "-o", str(old_identity))
+    run("age-keygen", "-o", str(new_identity))
+    old_recipient = run("age-keygen", "-y", str(old_identity)).stdout.strip()
+    new_recipient = run("age-keygen", "-y", str(new_identity)).stdout.strip()
+    remote = tmp_path / "knowledge.git"
+    run("git", "init", "--bare", "--initial-branch=main", str(remote))
+    home_a = tmp_path / "device-a"
+    home_b = tmp_path / "device-b"
+    store_a = Store(home_a / "knowledge.sqlite3", create=True)
+    store_b = Store(home_b / "knowledge.sqlite3", create=True)
+    try:
+        enroll(home_a, str(remote), "main", "device-a", old_identity, [old_recipient])
+        configure_git(home_a)
+        key = record_id("personal", "onboarding")
+        store_a.put(key, payload("Available to the new device"))
+        synchronize(home_a, store_a)
+        old_group = status(home_a)["recipient_group"]
+
+        updated = set_recipients(home_a, [old_recipient, new_recipient])
+        assert updated["recipient_group"] != old_group
+        synchronize(home_a, store_a)
+        enroll(
+            home_b,
+            str(remote),
+            "main",
+            "device-b",
+            new_identity,
+            [old_recipient, new_recipient],
+        )
+        configure_git(home_b)
+        assert synchronize(home_b, store_b)["imported_records"] == 1
+        assert store_b.get(key)["body"] == "Available to the new device"
+    finally:
+        store_a.close()
+        store_b.close()

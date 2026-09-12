@@ -4,12 +4,12 @@ Use a separate private store for each person. This is local CLI software with a 
 
 ## 1. Download
 
-Download **agentic-knowledge-v0.1.0.zip** from the [v0.1.0 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.1.0), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
+Download **agentic-knowledge-v0.2.0.zip** from the [v0.2.0 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.2.0), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
 
 ```sh
 git clone https://github.com/ArgonTechSolutions/agentic-knowledge.git
 cd agentic-knowledge
-git checkout v0.1.0
+git checkout v0.2.0
 ```
 
 ## 2. Install on Linux
@@ -18,7 +18,7 @@ Run from the downloaded source folder. The destination must not exist and must b
 
 ```sh
 python3 scripts/install.py \
-  --app-dir "$HOME/.local/opt/agentic-knowledge-0.1.0" \
+  --app-dir "$HOME/.local/opt/agentic-knowledge-0.2.0" \
   --data-home "$HOME/.local/share/argon-knowledge" \
   --semantic
 python3 "$HOME/.codex/skills/agentic-knowledge/scripts/run.py" status
@@ -30,7 +30,7 @@ Run in PowerShell from the downloaded source folder:
 
 ```powershell
 py -3 scripts/install.py `
-  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.1.0" `
+  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.2.0" `
   --data-home "$env:LOCALAPPDATA\Argon\Knowledge" `
   --semantic
 py -3 "$HOME\.codex\skills\agentic-knowledge\scripts\run.py" status
@@ -78,9 +78,40 @@ Windows:
 Start-Process (Get-Content "$env:LOCALAPPDATA\Argon\Knowledge\exports\LATEST.txt")
 ```
 
-## Backup, transfer and upgrades
+## Encrypted Git synchronization
 
-Use `backup /private/new.sqlite3` for a consistent snapshot and `bundle-export /private/new.json` for a revision bundle. Transfer the bundle over an authenticated encrypted channel. On the other device, preview `bundle-import /private/new.json`, repeat with `--apply`, then run `index`. Each machine prepares its model separately. Conflicting edits fail atomically; keep both copies and reconcile deliberately. **There is no background sync.** Never synchronize an open database file.
+Git synchronization is optional and one-shot. Install Git and `age` on every device, configure Git authentication and author name/email, and create an empty private repository on GitHub or another Git server. Do not put credentials in its URL.
+
+Use one age identity on all devices, or collect every intended device's public recipient and repeat `--recipient` for each. On Linux, `age-keygen -y ~/.config/sops/age/keys.txt` prints the public recipient. On Windows, use `age-keygen -y "$HOME\.config\sops\age\keys.txt"`.
+
+```sh
+python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync-enroll \
+  --repository git@github.com:OWNER/private-knowledge-sync.git \
+  --branch main \
+  --device laptop-example \
+  --identity ~/.config/sops/age/keys.txt \
+  --recipient age1FIRST_DEVICE \
+  --recipient age1SECOND_DEVICE
+python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync-status
+python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync
+```
+
+Use the Windows wrapper path and PowerShell line continuations there. The device label is stored in encrypted-snapshot paths and should remain stable. The dedicated checkout defaults to `DATA_HOME/sync/repository`; use `--checkout` only for another private, dedicated path.
+
+To add a later device with a new age identity, first update an existing enrolled device with the complete recipient set and publish a bridge snapshot:
+
+```sh
+python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync-set-recipients \
+  --recipient age1EXISTING_DEVICE \
+  --recipient age1NEW_DEVICE
+python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync
+```
+
+Update every other existing device to that same complete recipient set before further writes. Then enroll the new device with the same set and run `sync`. Old recipient groups remain encrypted in Git history; removing a recipient does not revoke its access to earlier snapshots. For actual revocation, use a new private repository and recipient set after reviewing what history should migrate.
+
+## Backup, manual transfer and upgrades
+
+Use `backup /private/new.sqlite3` for a consistent snapshot and `bundle-export /private/new.json` for a manual revision bundle. Transfer plaintext bundles only over an authenticated encrypted channel. On the other device, preview `bundle-import /private/new.json`, repeat with `--apply`, then run `index`. Each machine prepares its model separately. Conflicting edits fail atomically; keep both copies and reconcile deliberately. Git synchronization also runs only when invoked; there is no background process. Never synchronize an open database file.
 
 Before upgrading, back up the store. Install a reviewed release into a new versioned app directory with the same `--data-home` and chosen capture option. The installer updates the skill pointer and keeps its previous version in backups. Read release notes for schema compatibility before opening an existing store with a different version. Keep the Python interpreter used to create the venv installed.
 
@@ -88,4 +119,4 @@ Rollback by restoring the previous skill backup and its `runtime.json`; preserve
 
 ## Data boundaries
 
-Stores, exports, backups and transfer bundles are plaintext under your local OS account; they are not encrypted by this tool. Retrieved excerpts enter your chosen agent's context and are subject to that agent provider's data handling. Local embedding inference does not change that agent boundary. Deleted records remain in history and old snapshots. Do not store credentials. See [the README](../README.md) for record commands and verification details.
+Stores, exports, backups and manual transfer bundles are plaintext under your local OS account. Git sync snapshots are encrypted to the configured age recipients before entering the repository; repository metadata still reveals recipient-group hashes, device labels, snapshot counts, timing, and encrypted sizes. Retrieved excerpts enter your chosen agent's context and are subject to that agent provider's data handling. Local embedding inference does not change that agent boundary. Deleted records remain in history and old snapshots. Do not store credentials. See [the README](../README.md) for record commands and verification details.
