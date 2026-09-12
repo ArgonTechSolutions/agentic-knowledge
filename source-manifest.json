@@ -10,18 +10,18 @@
   "docs/installation.md": "8b96840c67a7c9b5c2868d801508902f50f3d38c3c5474ef61bde7d6e44f7b73",
   "pyproject.toml": "5367264e2a73cd8cd4b87d7bb7105b71887539a7b9944936aa06027c71d27183",
   "scripts/install.py": "51336b37bbf4f6fc9d106b47f3bc103c2d426ea4d68db4cf5745afb3e14d3ea5",
-  "skills/agentic-knowledge/SKILL.md": "bbd882f25816ac7f8f466c7f8ddbe63fc664525ec3099b72273fe68b29d2e36b",
+  "skills/agentic-knowledge/SKILL.md": "59dd8710d4fe846afda8238017525d239b837fcb9f4610ae082372def48a59c7",
   "skills/agentic-knowledge/references/knowledge-routing.md": "ded129eb8de748ffa0534a148120ec1799c82b7d702027a6b68571fd0478982e",
   "skills/agentic-knowledge/references/records.md": "edbdb50f150da1e6d1b8b2814d9dcc3db8ec89f89ceb205d76d470d120b5e0c1",
-  "skills/agentic-knowledge/references/synchronization.md": "eb2b6081a241682ab66364c8014cc3bbc961d1dbbf6581eaff1c951c8b82d991",
+  "skills/agentic-knowledge/references/synchronization.md": "14ff5103e137c1ffcbcfec86c68a07af4d16fd88400eb82c1580a551dbc72748",
   "skills/agentic-knowledge/scripts/run.py": "50349d72495a8c6af205605ec8282dd3d0c6dc7d4faf5d754b851f584019754d",
   "src/argon_knowledge/__init__.py": "e38d9fcf8767dd606753012b3300e83bae451faf1a818e8fd573f92c6db357f3",
   "src/argon_knowledge/cli.py": "08b1bc444914499faa08a09f5a1947833df71e8b51907d3b989f022f9610514a",
   "src/argon_knowledge/semantic.py": "92ed63427e2e6fea036b1164e3cbd3febf816c216ae9e97b4f3a34f0c6e81669",
   "src/argon_knowledge/store.py": "e3620297d86901aaee45989335e974da6a072b7faef7b611feb010fe1468c555",
-  "src/argon_knowledge/sync.py": "d2e9aab7e4bc81be1d4934529c0ee0a510f71a059d19164b1d5806c676a5eb62",
+  "src/argon_knowledge/sync.py": "cf056017da59aac1a1d96f17fa73fac6741e054d31715cf91bb81ff54a5a1dc9",
   "src/argon_knowledge/transfer.py": "dd49d133b3dc1c1252d298911d00b34fe06678ef97714e28a4b6bb0951bc8576",
   "tests/test_knowledge.py": "add6d64831ed45b429f7f9b97b6c0c7ce22c01f8f399e8b60f10e866498e62d1",
   "tests/test_semantic.py": "72856c4839895e59aab24a90973ac1533bbf71f012c3b1ff91d51e7e8a6f7330",
-  "tests/test_sync.py": "b7f138cc9170dafa3e879f9ef31541a1d1caaa98b5ea01cbd648e70272251c3b"
+  "tests/test_sync.py": "36c55f7b39b4fde9f86909a6f230ba3c6e4215f1ce088c41d15e270ef0cbfe1e"
 }

@@ -61,7 +61,9 @@ def test_encrypted_git_sync_and_divergence(tmp_path):
 
         enroll(home_b, str(remote), "main", "device-b", identity, [recipient])
         configure_git(home_b)
-        assert synchronize(home_b, store_b)["imported_records"] == 1
+        imported = synchronize(home_b, store_b)
+        assert imported["imported_records"] == 1
+        assert imported["index_required"] is True
         assert store_b.get(first_id)["revision"] == first["revision"]
 
         second_id = record_id("personal", "second")

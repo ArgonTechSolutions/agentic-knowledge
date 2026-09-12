@@ -2,7 +2,7 @@
 
 Each device has an independent authoritative SQLite store. Enrolled synchronization uses a dedicated checkout of any Git remote and stores only immutable `age`-encrypted full-history bundles. Git credentials and age private keys remain outside the repository. The `sync` command pulls, merges compatible histories transactionally, publishes the current device snapshot, and exits.
 
-Run `sync-status` to distinguish an enrolled device from a local-only installation. On an enrolled device, run `sync` before relying on personal knowledge and after a successful capture batch. A successful result names the device, recipient group, bundle hash, imported-record count, and published snapshot. Treat an error as a freshness boundary.
+Run `sync-status` to distinguish an enrolled device from a local-only installation. On an enrolled device, run `sync` before relying on personal knowledge and after a successful capture batch. A successful result names the device, recipient group, bundle hash, imported-record count, whether indexing is required, and published snapshot. Run `index` after imported records when hybrid retrieval is needed. Treat an error as a freshness boundary.
 
 Each absolute path in a personal record must still name its verified device. Synchronization makes that record available elsewhere; it does not make the path portable.
 

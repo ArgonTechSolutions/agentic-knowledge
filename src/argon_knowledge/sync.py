@@ -348,6 +348,7 @@ def synchronize(home, store, attempts=3):
                 "device": config["device"],
                 "imported_records": len(imported),
                 "imported_record_ids": sorted(imported),
+                "index_required": bool(imported),
                 "snapshot": str(relative).replace("\\", "/"),
                 "bundle_hash": bundle_hash,
                 "recipient_group": _recipient_group(config["recipients"]),
