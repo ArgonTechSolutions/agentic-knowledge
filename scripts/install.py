@@ -27,6 +27,8 @@ p.add_argument(
 a = p.parse_args()
 source = Path(__file__).resolve().parents[1]
 app = a.app_dir.expanduser().absolute()
+if app == source or app.is_relative_to(source):
+    sys.exit("App directory must be outside the downloaded source directory.")
 if app.exists():
     sys.exit(
         "App directory already exists; choose a new versioned directory. Existing data stays intact."

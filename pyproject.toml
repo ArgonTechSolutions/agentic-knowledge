@@ -6,8 +6,16 @@ build-backend = "setuptools.build_meta"
 name = "argon-agentic-knowledge"
 version = "0.1.0"
 description = "Private, on-demand knowledge records with hybrid search and Markdown exports"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = ["sqlite-vec==0.1.9"]
+
+[project.urls]
+Homepage = "https://tools.argon.com.pe/agents/agentic-knowledge/"
+Repository = "https://github.com/ArgonTechSolutions/agentic-knowledge"
+Documentation = "https://github.com/ArgonTechSolutions/agentic-knowledge/blob/main/docs/installation.md"
 
 [project.optional-dependencies]
 semantic = ["fastembed==0.8.0"]

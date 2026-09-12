@@ -6,6 +6,9 @@ The reusable code belongs to the Argon workflow; each person keeps a separate pr
 
 ## Install
 
+Start with the [Windows and Linux installation guide](docs/installation.md) or the [latest release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/latest). Download the release zip for the installer and Codex skill; the wheel is CLI-only.
+
+
 Python 3.11+ with venv and SQLite extension loading. Python 3.12 is the verified Linux runtime; Python 3.13 is verified on Windows. From this source folder:
 
 ```sh
@@ -50,7 +53,7 @@ argon-knowledge --home /other/private/data bundle-import /private/transfer/new.j
 
 Backups use SQLite's backup API. Transfer bundles include complete records and revision history, not derived indexes or model files. They are private plaintext: use an authenticated encrypted transport and private destinations. Bundles reject tampering and divergent edits atomically; they do not authenticate an untrusted sender. Keep both divergent copies, retrieve histories, and reconcile intentionally. There is no automatic cross-machine synchronization in v1. Never sync an open SQLite file with a file-sync tool.
 
-Deleted/superseded records are excluded from retrieval but retained in history, old exports and backups. This is not secure erasure. Local permissions inherit the user's OS account protection; this tool does not encrypt data at rest or implement shared-host multi-tenancy. The credential pattern check is incomplete defense in depth, not a secret scanner.
+Deleted/superseded records are excluded from retrieval but retained in history, old exports and backups. This is not secure erasure. Retrieved excerpts enter your chosen agent’s context and follow that provider’s data handling; local embeddings do not make the agent itself local. Local permissions inherit the user's OS account protection; this tool does not encrypt data at rest or implement shared-host multi-tenancy. The credential pattern check is incomplete defense in depth, not a secret scanner.
 
 ## Validate and operate
 
@@ -65,4 +68,4 @@ Semantic integration tests require prepared model weights; use `ARGON_TEST_MODEL
 
 Rollback: stop invoking the new skill, restore its backup and prior knowledge-routing line if changed. Original Markdown is unchanged. Preserve the private store and backups to retain new records. The installer changes no firewall, SSH, service, production config, or public site.
 
-See [architecture](docs/architecture.md), [milestones](docs/plan.md), and [publication preview](docs/youtrack-preview.md). Public hosting and shared YouTrack publication are separate unperformed actions.
+See [architecture](docs/architecture.md), [installation](docs/installation.md), and [release notes](CHANGELOG.md). Released under the [MIT license](LICENSE).
