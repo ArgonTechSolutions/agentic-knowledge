@@ -133,10 +133,10 @@ def load(home):
         "git",
         "age",
     }
-    if isinstance(value, dict) and set(value) == required:
+    legacy = required.copy()
+    required.add("ssh_key")
+    if isinstance(value, dict) and set(value) == legacy:
         value["ssh_key"] = ""
-    elif isinstance(value, dict):
-        required.add("ssh_key")
     if not isinstance(value, dict) or set(value) != required or value["format"] != FORMAT:
         raise KnowledgeError("Invalid Git sync configuration.")
     _git_environment(value["ssh_key"])

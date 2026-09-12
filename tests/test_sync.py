@@ -96,6 +96,26 @@ def test_enrollment_rejects_embedded_credentials(tmp_path):
         )
 
 
+def test_status_accepts_config_created_before_ssh_key_support(tmp_path):
+    home = tmp_path / "home"
+    checkout = home / "sync/repository"
+    checkout.mkdir(parents=True)
+    (checkout / ".git").mkdir()
+    config = {
+        "format": "argon-knowledge-git-sync/v1",
+        "repository": "https://example.invalid/private.git",
+        "branch": "main",
+        "device": "device-a",
+        "identity": str(tmp_path / "identity.txt"),
+        "recipients": ["age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"],
+        "checkout": str(checkout),
+        "git": "git",
+        "age": "age",
+    }
+    (home / "sync.json").write_text(json.dumps(config))
+    assert status(home)["device"] == "device-a"
+
+
 @pytest.mark.skipif(
     not all(shutil.which(x) for x in ["age", "age-keygen", "git"]),
     reason="age and Git are required",

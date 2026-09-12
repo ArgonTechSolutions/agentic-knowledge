@@ -19,9 +19,9 @@
   "src/argon_knowledge/cli.py": "08b1bc444914499faa08a09f5a1947833df71e8b51907d3b989f022f9610514a",
   "src/argon_knowledge/semantic.py": "92ed63427e2e6fea036b1164e3cbd3febf816c216ae9e97b4f3a34f0c6e81669",
   "src/argon_knowledge/store.py": "e3620297d86901aaee45989335e974da6a072b7faef7b611feb010fe1468c555",
-  "src/argon_knowledge/sync.py": "f789c38c61411af2ae437910cd26d871aaacae3063e7e13f42822d89000d16ba",
+  "src/argon_knowledge/sync.py": "d2e9aab7e4bc81be1d4934529c0ee0a510f71a059d19164b1d5806c676a5eb62",
   "src/argon_knowledge/transfer.py": "dd49d133b3dc1c1252d298911d00b34fe06678ef97714e28a4b6bb0951bc8576",
   "tests/test_knowledge.py": "add6d64831ed45b429f7f9b97b6c0c7ce22c01f8f399e8b60f10e866498e62d1",
   "tests/test_semantic.py": "72856c4839895e59aab24a90973ac1533bbf71f012c3b1ff91d51e7e8a6f7330",
-  "tests/test_sync.py": "d0418e3c7182250bde9fa9290309967f8648a1937dcc775e03747bf11355e697"
+  "tests/test_sync.py": "b7f138cc9170dafa3e879f9ef31541a1d1caaa98b5ea01cbd648e70272251c3b"
 }
