@@ -1,0 +1,20 @@
+{
+  ".gitignore": "0a377fd7adba56a70f21cfc9ca7808090bbd4e911efc18aa1109810ffedc6f56",
+  "AGENTS.md": "ca61dd3340697a17788337acac5fd63e5e07c219eb3da97c7f1614f252c02d13",
+  "README.md": "f38ac96a4de29d157b879ab8db3801fa6a20ad7a8dc11a251d3ab139905b8292",
+  "docs/architecture.md": "faf655252ebe901ea1c38a850b1f94e613428cc05f0627018b8b05a296b1051e",
+  "docs/plan.md": "4eddab88db47361877e4281ce77812d5985d5283b6c841ee37e72bc7a644f991",
+  "docs/youtrack-preview.md": "826154e570726cc9dbd3f59af2de2be01b466e34af0c4dc14381780b8dd5da62",
+  "pyproject.toml": "e6fb432654e08ef0aae6c29fde4a9eec42b59ae801704d8a4af7bdc986178446",
+  "scripts/install.py": "d9aae478996ba56dc615927714fc71d269516473d0dc74155225b5f3db4f79e7",
+  "skills/agentic-knowledge/SKILL.md": "71f339d8247eb163dbb062892f7f85a292da1d9dfda96833df07b350590dfdd4",
+  "skills/agentic-knowledge/references/records.md": "47b27ed4c87cd635e9b2675b88736f87d4e7f8d8f1b54b950dfea0ed7fb91425",
+  "skills/agentic-knowledge/scripts/run.py": "50349d72495a8c6af205605ec8282dd3d0c6dc7d4faf5d754b851f584019754d",
+  "src/argon_knowledge/__init__.py": "17badb583179e699e576ffceebb9ad2e1f90facaa73feaf02bd0eca5df21f622",
+  "src/argon_knowledge/cli.py": "4f73949bbc5af392a15785094e35e599e41c4d031b561291a854ce0e123fcd61",
+  "src/argon_knowledge/semantic.py": "92ed63427e2e6fea036b1164e3cbd3febf816c216ae9e97b4f3a34f0c6e81669",
+  "src/argon_knowledge/store.py": "e3620297d86901aaee45989335e974da6a072b7faef7b611feb010fe1468c555",
+  "src/argon_knowledge/transfer.py": "dd49d133b3dc1c1252d298911d00b34fe06678ef97714e28a4b6bb0951bc8576",
+  "tests/test_knowledge.py": "add6d64831ed45b429f7f9b97b6c0c7ce22c01f8f399e8b60f10e866498e62d1",
+  "tests/test_semantic.py": "72856c4839895e59aab24a90973ac1533bbf71f012c3b1ff91d51e7e8a6f7330"
+}

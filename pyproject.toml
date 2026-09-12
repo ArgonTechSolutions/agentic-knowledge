@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "argon-agentic-knowledge"
+version = "0.1.0"
+description = "Private, on-demand knowledge records with hybrid search and Markdown exports"
+requires-python = ">=3.11"
+dependencies = ["sqlite-vec==0.1.9"]
+
+[project.optional-dependencies]
+semantic = ["fastembed==0.8.0"]
+dev = ["pytest==9.1.1", "ruff==0.16.7"]
+
+[project.scripts]
+argon-knowledge = "argon_knowledge.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
