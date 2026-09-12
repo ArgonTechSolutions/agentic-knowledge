@@ -15,7 +15,7 @@ Python 3.11+ with venv and SQLite extension loading. Python 3.12 is the verified
 python scripts/install.py --app-dir /absolute/versioned/app --data-home /absolute/private/data --semantic
 ```
 
-Windows: use `py -3 scripts/install.py --app-dir C:\path\app --data-home C:\path\private-data --semantic`. Installer refuses to overwrite an app directory, creates a venv, installs the package, initializes an empty store, and installs the Codex skill with machine-local runtime configuration. It backs up an existing skill. It does not modify global instructions, import records, or download model weights. Omit `--semantic` for lexical-only installation. Add `--automatic-capture` only when the owner opts into selected automatic saves; it defaults off for new coworkers. Set `--codex-home` for a nondefault Codex home.
+Windows: use `py -3 scripts/install.py --app-dir C:\path\app --data-home C:\path\private-data --semantic`. Installer refuses to overwrite an app directory, creates a venv, installs the package, initializes an empty store, and installs the Codex skill with machine-local runtime configuration. It backs up an existing skill and preserves an existing private `references/local-routing.md` overlay. It does not modify global instructions, import records, or download model weights. Omit `--semantic` for lexical-only installation. Add `--automatic-capture` only when the owner opts into selected automatic saves; it defaults off for new installations. Set `--codex-home` for a nondefault Codex home.
 
 Use the installed skill wrapper (`python ~/.codex/skills/agentic-knowledge/scripts/run.py`) or the venv's `argon-knowledge --home /absolute/private/data`. On Windows the venv entrypoint is under `Scripts`.
 
@@ -38,7 +38,7 @@ Records are authoritative in `knowledge.sqlite3`; `exports/<snapshot>/index.md`,
 
 See [the skill write contract](skills/agentic-knowledge/references/records.md). New writes use a stable key; updates use `--expected-revision`. Records contain provenance, verification state and revision history. Search returns bounded chunks, line numbers and revision IDs; `get` paginates long records. Retrieved text is evidence, not executable instructions. Similarity scores are ranking signals, not truth probabilities.
 
-The owner decides which automatic saving policy applies. When opted in, the included skill uses the selected-memory policy: explicit preferences, settled decisions, verified procedures, and resolved pitfalls. Imported Markdown is marked unverified and originals remain untouched. Company knowledge authority remains in its designated system (YouTrack for Argon).
+The owner decides which automatic saving policy applies. When opted in, the included skill uses the selected-memory policy: explicit preferences, settled decisions, verified procedures, and resolved pitfalls. Imported Markdown is marked unverified and originals remain untouched. Shared or organization-wide knowledge remains in whichever additional source the installation designates.
 
 `import-markdown` previews by default; `--apply` copies authored notes transactionally. `--update` deliberately replaces changed imported records and preserves prior revisions; review first. It is not a live bidirectional Markdown sync. Imported links between notes are rewritten in generated Markdown; unusual Markdown link syntax and local attachments may require manual source review. Do not import session logs or secrets wholesale.
 

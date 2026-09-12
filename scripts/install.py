@@ -49,6 +49,10 @@ subprocess.run(
 home = a.data_home.expanduser().absolute()
 subprocess.run([str(python), "-m", "argon_knowledge.cli", "--home", str(home), "init"], check=True)
 skill = a.codex_home.expanduser() / "skills/agentic-knowledge"
+local_routing = skill / "references/local-routing.md"
+local_routing_bytes = None
+if local_routing.is_file() and not local_routing.is_symlink():
+    local_routing_bytes = local_routing.read_bytes()
 if skill.exists():
     backup = (
         a.codex_home.expanduser()
@@ -59,6 +63,11 @@ if skill.exists():
     shutil.copytree(skill, backup)
     shutil.rmtree(skill)
 shutil.copytree(app / "skills/agentic-knowledge", skill)
+if local_routing_bytes is not None:
+    local_routing.parent.mkdir(parents=True, exist_ok=True)
+    with local_routing.open("xb") as overlay:
+        overlay.write(local_routing_bytes)
+    local_routing.chmod(0o600)
 (skill / "runtime.json").write_text(
     json.dumps(
         {"python": str(python), "home": str(home), "automatic_capture": a.automatic_capture},

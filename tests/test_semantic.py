@@ -23,7 +23,7 @@ def test_real_multilingual_retrieval(tmp_path):
             (
                 "privacy",
                 "Knowledge privacy",
-                "Personal knowledge remains private to its owner. Coworkers can install the same workflow with their own separate data.",
+                "Personal knowledge remains private to its owner. Each installation uses its own separate data.",
             ),
         ]:
             store.put(

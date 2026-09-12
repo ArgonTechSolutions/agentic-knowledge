@@ -1,8 +1,12 @@
 # Releases
 
+## 0.2.1
+
+Makes the bundled skill portable across organizations and source configurations. Public guidance now distinguishes personal knowledge from any additional configured knowledge sources without naming a private company system. Installations may keep owner-specific mappings in `references/local-routing.md`; the installer preserves that untracked overlay across upgrades. The store, schema, and encrypted sync protocol are unchanged.
+
 ## 0.2.0
 
-Adds opt-in one-shot synchronization through any enrolled Git repository. Full revision bundles are encrypted locally with `age`, grouped by recipient set, and stored as immutable device-labelled snapshots. Sync merges compatible histories transactionally, retries ordinary concurrent Git pushes, and stops on divergent record heads. The skill now always routes relevant personal context, separates personal and YouTrack knowledge, removes personal setup details from shared writing, and requires device provenance for absolute paths.
+Adds opt-in one-shot synchronization through any enrolled Git repository. Full revision bundles are encrypted locally with `age`, grouped by recipient set, and stored as immutable device-labelled snapshots. Sync merges compatible histories transactionally, retries ordinary concurrent Git pushes, and stops on divergent record heads. The skill now always routes relevant personal context, separates personal and shared knowledge, removes personal setup details from shared writing, and requires device provenance for absolute paths.
 
 ## 0.1.0
 

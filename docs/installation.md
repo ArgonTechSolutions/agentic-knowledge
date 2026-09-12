@@ -4,12 +4,12 @@ Use a separate private store for each person. This is local CLI software with a 
 
 ## 1. Download
 
-Download **agentic-knowledge-v0.2.0.zip** from the [v0.2.0 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.2.0), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
+Download **agentic-knowledge-v0.2.1.zip** from the [v0.2.1 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.2.1), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
 
 ```sh
 git clone https://github.com/ArgonTechSolutions/agentic-knowledge.git
 cd agentic-knowledge
-git checkout v0.2.0
+git checkout v0.2.1
 ```
 
 ## 2. Install on Linux
@@ -18,7 +18,7 @@ Run from the downloaded source folder. The destination must not exist and must b
 
 ```sh
 python3 scripts/install.py \
-  --app-dir "$HOME/.local/opt/agentic-knowledge-0.2.0" \
+  --app-dir "$HOME/.local/opt/agentic-knowledge-0.2.1" \
   --data-home "$HOME/.local/share/argon-knowledge" \
   --semantic
 python3 "$HOME/.codex/skills/agentic-knowledge/scripts/run.py" status
@@ -30,13 +30,15 @@ Run in PowerShell from the downloaded source folder:
 
 ```powershell
 py -3 scripts/install.py `
-  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.2.0" `
+  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.2.1" `
   --data-home "$env:LOCALAPPDATA\Argon\Knowledge" `
   --semantic
 py -3 "$HOME\.codex\skills\agentic-knowledge\scripts\run.py" status
 ```
 
 The installer creates a private application venv, initializes the store, and installs the skill. It honors `CODEX_HOME`, or accepts `--codex-home PATH`. Adjust wrapper paths accordingly. A pre-existing skill is backed up under the Codex home's `backups/` directory. No global instructions, services or existing notes are changed.
+
+The installed skill supports an optional private `references/local-routing.md` overlay that maps generic source roles to the owner's actual tools. Keep that file outside public distributions. Future installer upgrades preserve it alongside the machine-local runtime configuration.
 
 **Automatic saving is opt-in.** Add `--automatic-capture` to the installer only if you want agents to save selected durable preferences, decisions and verified procedures without asking each time. Otherwise they save only when explicitly requested. `run.py policy` reports the current setting. For an existing installation, deliberately edit `automatic_capture` in the installed skill's `runtime.json` to enable or disable it; preserve the interpreter and data paths.
 

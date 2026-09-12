@@ -1,6 +1,6 @@
 # Agentic Knowledge
 
-Argon reusable tooling; all real knowledge, model caches, exports, and backups stay outside this repository. Public setup and architecture are documented under docs/. Argon internal process knowledge remains in YouTrack.
+Argon reusable tooling; all real knowledge, model caches, exports, backups, and owner-specific source mappings stay outside this repository. Public setup and architecture are documented under docs/.
 
 Python 3.11+ CLI, SQLite/FTS5/sqlite-vec, optional local FastEmbed. No daemon, watcher, or boot service. `src/argon_knowledge/cli.py` owns the command boundary; `store.py` owns transactional records, revision checks, chunks, and bundles; `semantic.py` owns on-demand model loading.
 
