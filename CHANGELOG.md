@@ -1,5 +1,9 @@
 # Releases
 
+## 0.2.2
+
+Makes automatic use explicit: relevant tasks should retrieve personal context without waiting for a memory prompt, and tasks that establish durable personal context should perform a capture check before finishing. When an enrolled sync checkout is blocked by a task sandbox, the skill now requests scoped access and retries once before declaring the local snapshot stale. The installation guide documents persistent Codex filesystem access for the private data directory.
+
 ## 0.2.1
 
 Makes the bundled skill portable across organizations and source configurations. Public guidance now distinguishes personal knowledge from any additional configured knowledge sources without naming a private company system. Installations may keep owner-specific mappings in `references/local-routing.md`; the installer preserves that untracked overlay across upgrades. The store, schema, and encrypted sync protocol are unchanged.

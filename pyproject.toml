@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "argon-agentic-knowledge"
-version = "0.2.1"
+version = "0.2.2"
 description = "Private, on-demand knowledge records with hybrid search and Markdown exports"
 readme = "README.md"
 license = "MIT"
