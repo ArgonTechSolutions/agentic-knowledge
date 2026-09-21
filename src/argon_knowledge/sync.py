@@ -15,10 +15,34 @@ FORMAT = "argon-knowledge-git-sync/v1"
 CONFIG = "sync.json"
 
 
+def _scope_git_safe_directory(args, cwd, env):
+    """Trust only the exact dedicated checkout for this Git subprocess."""
+    if cwd is None or Path(str(args[0])).name.lower() not in {"git", "git.exe"}:
+        return
+    checkout = Path(cwd).expanduser().absolute()
+    if not (checkout / ".git").exists():
+        return
+    try:
+        count = int(env.get("GIT_CONFIG_COUNT", "0"))
+    except ValueError as exc:
+        raise KnowledgeError("GIT_CONFIG_COUNT must be an integer.") from exc
+    safe_directory = checkout.as_posix()
+    if any(
+        env.get(f"GIT_CONFIG_KEY_{index}") == "safe.directory"
+        and env.get(f"GIT_CONFIG_VALUE_{index}") == safe_directory
+        for index in range(count)
+    ):
+        return
+    env[f"GIT_CONFIG_KEY_{count}"] = "safe.directory"
+    env[f"GIT_CONFIG_VALUE_{count}"] = safe_directory
+    env["GIT_CONFIG_COUNT"] = str(count + 1)
+
+
 def _command(args, cwd=None, data=None, ok=True, env_updates=None):
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
     env.update(env_updates or {})
+    _scope_git_safe_directory(args, cwd, env)
     try:
         result = subprocess.run(
             [str(x) for x in args],
@@ -117,7 +141,7 @@ def _write_config(path, value, exclusive=False):
             temporary.unlink()
 
 
-def load(home):
+def load(home, validate_ssh_key=True):
     path = _config_path(home)
     if not path.is_file() or path.is_symlink():
         raise KnowledgeError("Git sync is not enrolled on this device.")
@@ -139,7 +163,8 @@ def load(home):
         value["ssh_key"] = ""
     if not isinstance(value, dict) or set(value) != required or value["format"] != FORMAT:
         raise KnowledgeError("Invalid Git sync configuration.")
-    _git_environment(value["ssh_key"])
+    if validate_ssh_key:
+        _git_environment(value["ssh_key"])
     return value
 
 
@@ -224,7 +249,8 @@ def set_recipients(home, recipients):
 
 
 def status(home):
-    value = load(home)
+    # Status is read-only and must not require access to a private SSH key.
+    value = load(home, validate_ssh_key=False)
     checkout = Path(value["checkout"])
     group = _recipient_group(value["recipients"])
     return {

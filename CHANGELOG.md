@@ -1,5 +1,9 @@
 # Releases
 
+## 0.2.3
+
+Fixes Windows synchronization and export behavior across the interactive owner account and Codex sandbox identities. Git subprocesses now trust only the exact dedicated sync checkout through process-scoped configuration, without changing global `safe.directory` settings. Read-only `sync-status` no longer requires access to the configured private SSH key. Generated exports inherit the reviewed Windows data-home ACL for the staging root, nested `notes` directory, note files, and `LATEST.txt`; Unix exports retain restrictive `0700` staging. Export snapshot identities now include a renderer version so fixes produce a new immutable directory instead of conflicting with an older export generated from the same records. Conflict errors name the mismatched files without printing their contents. Public documentation now explicitly states that release artifacts contain no preloaded personal records or owner-specific routing, and its device-label example is generic.
+
 ## 0.2.2
 
 Makes automatic use explicit: relevant tasks should retrieve personal context without waiting for a memory prompt, and tasks that establish durable personal context should perform a capture check before finishing. When an enrolled sync checkout is blocked by a task sandbox, the skill now requests scoped access and retries once before declaring the local snapshot stale. The installation guide documents persistent Codex filesystem access for the private data directory.

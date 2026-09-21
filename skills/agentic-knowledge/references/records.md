@@ -21,11 +21,11 @@ Replace the example with actual evidence. All fields are required. Kinds: fact, 
 When a record contains an absolute filesystem path, its body must place the verified device beside it:
 
 ```text
-Device: pc-windows-gonzalo
+Device: windows-workstation
 Path: D:\Work\Example
 ```
 
-Add a matching `device:pc-windows-gonzalo` tag. Determine the stable device label from the environment or established device inventory. Do not infer it from the path, omit it, or silently generalize a path across devices. If one logical resource has different paths on multiple devices, keep each device/path mapping explicit in the same record or in clearly linked records.
+Add a matching `device:windows-workstation` tag. Determine the stable device label from the environment or established device inventory. Do not infer it from the path, omit it, or silently generalize a path across devices. If one logical resource has different paths on multiple devices, keep each device/path mapping explicit in the same record or in clearly linked records.
 
 Commands, after `python <skill>/scripts/run.py`:
 

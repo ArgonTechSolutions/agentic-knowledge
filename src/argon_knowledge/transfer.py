@@ -8,9 +8,21 @@ import posixpath
 import re
 import shutil
 import tempfile
+import uuid
 from pathlib import Path
 
 from .store import FIELDS, Conflict, KnowledgeError, canonical, digest, record_id, validate_payload
+
+EXPORT_RENDERER_VERSION = "argon-knowledge-export-renderer/v2"
+WINDOWS = os.name == "nt"
+
+
+def _mkdir(path, *, parents=False, exist_ok=False):
+    """Use private Unix modes while preserving inherited Windows ACLs."""
+    if WINDOWS:
+        path.mkdir(parents=parents, exist_ok=exist_ok)
+    else:
+        path.mkdir(parents=parents, exist_ok=exist_ok, mode=0o700)
 
 
 def read_json(path, maximum=25_000_000):
@@ -88,7 +100,9 @@ def export_markdown(store, output=None):
     with store.transaction():
         records = [store.get(row["id"]) for row in store.list_records()]
         heads = {r["id"]: r["revision"] for r in store.list_records(include_inactive=True)}
-    snapshot = digest(heads)[:20]
+    # Renderer changes must create a new immutable export instead of colliding
+    # with an older directory generated from the same record heads.
+    snapshot = digest({"heads": heads, "renderer": EXPORT_RENDERER_VERSION})[:20]
     root = (
         Path(output).expanduser().absolute() if output else store.path.parent / "exports" / snapshot
     )
@@ -190,16 +204,29 @@ document.getElementById('filter').addEventListener('input',e=>{let q=e.target.va
         }
         expected = {n: hashlib.sha256(v.encode()).hexdigest() for n, v in generated.items()}
         if actual != expected:
+            mismatched = sorted(
+                name
+                for name in set(actual) | set(expected)
+                if actual.get(name) != expected.get(name)
+            )
             raise Conflict(
-                "Export path already exists with different contents; choose a new output path."
+                "Export path already exists with different contents; choose a new output path. "
+                + "Mismatched files: "
+                + ", ".join(mismatched[:20])
             )
     else:
-        root.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        stage = Path(tempfile.mkdtemp(prefix=".knowledge-export-", dir=root.parent))
+        _mkdir(root.parent, parents=True, exist_ok=True)
+        if WINDOWS:
+            # tempfile.mkdtemp(mode=0o700) creates a protected owner-only ACL on
+            # Windows. Normal directory creation inherits the reviewed data-home ACL.
+            stage = root.parent / f".knowledge-export-{uuid.uuid4().hex}"
+            _mkdir(stage)
+        else:
+            stage = Path(tempfile.mkdtemp(prefix=".knowledge-export-", dir=root.parent))
         try:
             for relative, body in generated.items():
                 path = stage / relative
-                path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+                _mkdir(path.parent, parents=True, exist_ok=True)
                 path.write_bytes(body.encode("utf-8"))
             stage.rename(root)
         except BaseException:
@@ -207,9 +234,15 @@ document.getElementById('filter').addEventListener('input',e=>{let q=e.target.va
             raise
     if output is None:
         # Atomic pointer file, never a mutable database copy or symlink.
-        fd, temporary = tempfile.mkstemp(prefix=".LATEST-", dir=root.parent)
-        with os.fdopen(fd, "w", encoding="utf-8") as stream:
-            stream.write(str(root / "index.html") + "\n")
+        if WINDOWS:
+            temporary = root.parent / f".LATEST-{uuid.uuid4().hex}"
+            with temporary.open("x", encoding="utf-8") as stream:
+                stream.write(str(root / "index.html") + "\n")
+        else:
+            fd, temporary_name = tempfile.mkstemp(prefix=".LATEST-", dir=root.parent)
+            temporary = Path(temporary_name)
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                stream.write(str(root / "index.html") + "\n")
         os.replace(temporary, root.parent / "LATEST.txt")
     return {
         "directory": str(root),

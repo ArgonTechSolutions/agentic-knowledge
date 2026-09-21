@@ -4,12 +4,12 @@ Use a separate private store for each person. This is local CLI software with a 
 
 ## 1. Download
 
-Download **agentic-knowledge-v0.2.2.zip** from the [v0.2.2 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.2.2), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
+Download **agentic-knowledge-v0.2.3.zip** from the [v0.2.3 release](https://github.com/ArgonTechSolutions/agentic-knowledge/releases/tag/v0.2.3), verify its SHA-256 against `SHA256SUMS.txt`, extract it, and open a terminal in the extracted directory. The zip includes the installer and Codex skill. Alternatively:
 
 ```sh
 git clone https://github.com/ArgonTechSolutions/agentic-knowledge.git
 cd agentic-knowledge
-git checkout v0.2.2
+git checkout v0.2.3
 ```
 
 ## 2. Install on Linux
@@ -18,7 +18,7 @@ Run from the downloaded source folder. The destination must not exist and must b
 
 ```sh
 python3 scripts/install.py \
-  --app-dir "$HOME/.local/opt/agentic-knowledge-0.2.2" \
+  --app-dir "$HOME/.local/opt/agentic-knowledge-0.2.3" \
   --data-home "$HOME/.local/share/argon-knowledge" \
   --semantic
 python3 "$HOME/.codex/skills/agentic-knowledge/scripts/run.py" status
@@ -30,7 +30,7 @@ Run in PowerShell from the downloaded source folder:
 
 ```powershell
 py -3 scripts/install.py `
-  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.2.2" `
+  --app-dir "$env:LOCALAPPDATA\Argon\Apps\agentic-knowledge-0.2.3" `
   --data-home "$env:LOCALAPPDATA\Argon\Knowledge" `
   --semantic
 py -3 "$HOME\.codex\skills\agentic-knowledge\scripts\run.py" status
@@ -136,6 +136,14 @@ python3 ~/.codex/skills/agentic-knowledge/scripts/run.py sync
 ```
 
 Update every other existing device to that same complete recipient set before further writes. Then enroll the new device with the same set and run `sync`. Old recipient groups remain encrypted in Git history; removing a recipient does not revoke its access to earlier snapshots. For actual revocation, use a new private repository and recipient set after reviewing what history should migrate.
+
+### Windows synchronization troubleshooting
+
+Agentic Knowledge keeps Git trust scoped to its own subprocesses. If the checkout is owned by the interactive Windows account while Codex runs under a sandbox identity, `sync` should work without adding a global `safe.directory`. Do not follow Git's suggestion to modify the global list for this dedicated checkout; verify that the checkout in `sync-status` is the expected private repository and use the current release.
+
+`sync-status` is intentionally read-only and does not open or validate the configured SSH private key. `sync`, recipient changes, and other network operations still validate and use the key when needed.
+
+Windows exports must inherit the ACL of the configured data home so both the owner and the explicitly authorized Codex identities can reopen them. If an export created by an older release reports different contents or an access-denied error, keep it as an immutable historical snapshot and rerun `export` with the current release. The renderer version creates a new directory; do not recursively relax permissions on old exports. The conflict message lists only mismatched filenames and never their contents.
 
 ## Backup, manual transfer and upgrades
 

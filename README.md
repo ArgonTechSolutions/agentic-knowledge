@@ -2,7 +2,7 @@
 
 Private knowledge records, hybrid retrieval, encrypted Git synchronization, and human-readable Markdown/HTML exports. Every command exits. No database server, background indexer, container, model service, or network embedding API.
 
-The reusable code belongs to the Argon workflow; each person keeps a separate private data directory. Scope labels filter one owner's records; they do not implement multi-user authorization. Hosting a download or documentation at tools.argon.com.pe does not host the owner's knowledge.
+The reusable code belongs to the Argon workflow; each person keeps a separate private data directory. Public source archives, wheels, and release zips contain no preloaded personal records, private exports, sync snapshots, or owner-specific routing. Scope labels filter one owner's records; they do not implement multi-user authorization. Hosting a download or documentation at tools.argon.com.pe does not host the owner's knowledge.
 
 ## Install
 

@@ -4,6 +4,7 @@ import subprocess
 
 import pytest
 
+from argon_knowledge import sync
 from argon_knowledge.store import Conflict, Store, record_id
 from argon_knowledge.sync import enroll, set_recipients, status, synchronize
 
@@ -116,6 +117,49 @@ def test_status_accepts_config_created_before_ssh_key_support(tmp_path):
     }
     (home / "sync.json").write_text(json.dumps(config))
     assert status(home)["device"] == "device-a"
+
+
+def test_status_does_not_require_access_to_the_configured_ssh_key(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    checkout = home / "sync/repository"
+    checkout.mkdir(parents=True)
+    (checkout / ".git").mkdir()
+    config = {
+        "format": "argon-knowledge-git-sync/v1",
+        "repository": "git@example.invalid:private.git",
+        "branch": "main",
+        "device": "device-a",
+        "identity": str(tmp_path / "identity.txt"),
+        "recipients": ["age1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"],
+        "checkout": str(checkout),
+        "git": "git",
+        "age": "age",
+        "ssh_key": str(tmp_path / "unreadable-private-key"),
+    }
+    (home / "sync.json").write_text(json.dumps(config))
+
+    def fail_if_validated(_):
+        raise AssertionError("read-only status must not validate the SSH key")
+
+    monkeypatch.setattr(sync, "_git_environment", fail_if_validated)
+    assert status(home)["device"] == "device-a"
+
+
+def test_git_commands_scope_safe_directory_to_the_checkout(tmp_path, monkeypatch):
+    checkout = tmp_path / "checkout"
+    (checkout / ".git").mkdir(parents=True)
+    captured = {}
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "0")
+
+    def fake_run(args, **kwargs):
+        captured.update(kwargs["env"])
+        return subprocess.CompletedProcess(args, 0, b"", b"")
+
+    monkeypatch.setattr(sync.subprocess, "run", fake_run)
+    sync._command(["git", "status", "--porcelain"], checkout)
+    assert captured["GIT_CONFIG_COUNT"] == "1"
+    assert captured["GIT_CONFIG_KEY_0"] == "safe.directory"
+    assert captured["GIT_CONFIG_VALUE_0"] == checkout.absolute().as_posix()
 
 
 @pytest.mark.skipif(

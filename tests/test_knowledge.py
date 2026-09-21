@@ -7,6 +7,7 @@ import sys
 
 import pytest
 
+from argon_knowledge import transfer
 from argon_knowledge.semantic import search
 from argon_knowledge.store import Conflict, KnowledgeError, Store, record_id
 from argon_knowledge.transfer import export_markdown, markdown_import
@@ -90,6 +91,18 @@ def test_import_export_and_protection(store, tmp_path):
     (root / "alpha.md").write_text("# New content")
     with pytest.raises(Conflict):
         markdown_import(store, root, "notes", "personal", apply=True)
+
+
+def test_windows_export_directory_creation_inherits_acl(tmp_path, monkeypatch):
+    calls = []
+
+    class Directory:
+        def mkdir(self, **kwargs):
+            calls.append(kwargs)
+
+    monkeypatch.setattr(transfer, "WINDOWS", True)
+    transfer._mkdir(Directory(), parents=True, exist_ok=True)
+    assert calls == [{"parents": True, "exist_ok": True}]
 
 
 def test_merge_divergence_atomic_and_tampering(store, tmp_path):
